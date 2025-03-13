@@ -114,95 +114,99 @@ fun HomeScreen(
                 .offset(y = (-30).dp)
         ) {
             SearchBox(searchQuery = searchQuery, onSearchQueryChanged = { searchQuery = it })
-            Text(
-                modifier = Modifier.padding(start = 12.dp, top = 8.dp, end = 12.dp),
-                text = "Continue Reading",
-                style = MaterialTheme.typography.h6,
-            )
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(180.dp)
-                    .padding(horizontal = 12.dp, vertical = 8.dp)
-                    .applyBrutalism(
-                        backgroundColor = Color(0xFFFFA500), //soft tanfgerine
-                        borderWidth = 3.dp,
-                        cornersRadius = 6.dp
-                    )
-            ) {
+            // Hide "Continue Reading" section when searchQuery is not empty
+            if (searchQuery.isEmpty()) {
+                Text(
+                    modifier = Modifier.padding(start = 12.dp, top = 8.dp, end = 12.dp),
+                    text = "Continue Reading",
+                    style = MaterialTheme.typography.h6,
+                )
 
-                Row(
+                Box(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxWidth()
+                        .height(180.dp)
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                        .applyBrutalism(
+                            backgroundColor = Color(0xFFFFA500), //soft tanfgerine
+                            borderWidth = 3.dp,
+                            cornersRadius = 6.dp
+                        )
                 ) {
 
-                    Image(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .width(120.dp),
-                        painter = painter,
-                        contentScale = ContentScale.Crop,
-                        contentDescription = "Continue Reading"
-                    )
-
-                    Divider(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .width(4.dp)
-                            .background(Color.Black)
-                    )
-
-                    Column(
+                    Row(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(8.dp),
-                        verticalArrangement = Arrangement.SpaceBetween
                     ) {
 
-                        Text(
-                            text = recentRead.title,
-                            style = MaterialTheme.typography.h5,
-                            maxLines = 2
-                        )
-                        Text(
-                            text = "By " + recentRead.author,
-                            style = MaterialTheme.typography.subtitle2,
-                            color = Color.Black.copy(alpha = 0.5f),
-                            maxLines = 2
+                        Image(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .width(120.dp),
+                            painter = painter,
+                            contentScale = ContentScale.Crop,
+                            contentDescription = "Continue Reading"
                         )
 
-                        Box(
+                        Divider(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp)
-                                .padding(bottom = 4.dp, end = 4.dp)
-                                .applyBrutalism(
-                                    backgroundColor = Color(0xFF008080),
-                                    borderWidth = 3.dp
-                                )
-                                .clickable {
-                                    navController.navigate(
-                                        route = Screen.Details.route.plus("/${recentRead.id}")
+                                .fillMaxHeight()
+                                .width(4.dp)
+                                .background(Color.Black)
+                        )
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(8.dp),
+                            verticalArrangement = Arrangement.SpaceBetween
+                        ) {
+
+                            Text(
+                                text = recentRead.title,
+                                style = MaterialTheme.typography.h5,
+                                maxLines = 2
+                            )
+                            Text(
+                                text = "By " + recentRead.author,
+                                style = MaterialTheme.typography.subtitle2,
+                                color = Color.Black.copy(alpha = 0.5f),
+                                maxLines = 2
+                            )
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(50.dp)
+                                    .padding(bottom = 4.dp, end = 4.dp)
+                                    .applyBrutalism(
+                                        backgroundColor = Color(0xFF008080),
+                                        borderWidth = 3.dp
+                                    )
+                                    .clickable {
+                                        navController.navigate(
+                                            route = Screen.Details.route.plus("/${recentRead.id}")
+                                        )
+                                    }
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxSize(),
+                                    horizontalArrangement = Arrangement.SpaceAround,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "Continue Reading",
+                                        style = MaterialTheme.typography.subtitle1,
+                                        color = Color.White
+                                    )
+                                    CircularProgressBar(
+                                        percentage = 0.64f,
+                                        radius = 12.dp,
+                                        color = Color.White,
+                                        strokeWidth = 3.dp,
                                     )
                                 }
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxSize(),
-                                horizontalArrangement = Arrangement.SpaceAround,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "Continue Reading",
-                                    style = MaterialTheme.typography.subtitle1,
-                                    color = Color.White
-                                )
-                                CircularProgressBar(
-                                    percentage = 0.64f,
-                                    radius = 12.dp,
-                                    color = Color.White,
-                                    strokeWidth = 3.dp,
-                                )
                             }
                         }
                     }
