@@ -121,6 +121,7 @@ fun HomeScreen(
                     modifier = Modifier.padding(start = 12.dp, top = 8.dp, end = 12.dp),
                     text = "Continue Reading",
                     style = MaterialTheme.typography.h6,
+                    color = Color.Black,
                 )
 
                 Box(
@@ -217,6 +218,7 @@ fun HomeScreen(
                 modifier = Modifier.padding(start = 12.dp, top = 8.dp, end = 12.dp),
                 text = "Recommended For You",
                 style = MaterialTheme.typography.h6,
+                color = Color.Black,
             )
 
             LazyRow(
@@ -236,6 +238,7 @@ fun HomeScreen(
                 modifier = Modifier.padding(start = 12.dp, top = 8.dp, end = 12.dp),
                 text = "Best Sellers",
                 style = MaterialTheme.typography.h6,
+                color = Color.Black,
             )
 
             LazyRow(
