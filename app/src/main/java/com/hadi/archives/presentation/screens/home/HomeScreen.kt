@@ -1,9 +1,14 @@
 package com.hadi.archives.presentation.screens.home
 
+import android.widget.Space
+import android.widget.Switch
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -56,10 +61,18 @@ fun HomeScreen(
 
     //state to hold search query
     var searchQuery by remember { mutableStateOf("") }
+    var isBrutalismThemeEnabled by remember { mutableStateOf(false) }
 
     //get filtered lists based on search query
     val filteredManagementBooks = getManagementBooks().filter { it.title.contains(searchQuery, ignoreCase = true) }
     val filteredScienceFictions = getScienceFictions().filter { it.title.contains(searchQuery, ignoreCase = true) }
+
+    // Apply Brutalism theme if enabled
+    val backgroundColor = if (isBrutalismThemeEnabled) Color.Black else Color.White
+    val textColor = if (isBrutalismThemeEnabled) Color.White else Color.Black
+    val buttonBackgroundColor = if (isBrutalismThemeEnabled) Color(0xFFFFA500) else Color(0xFF008080)
+
+
 
     Column(
         modifier = Modifier
@@ -72,30 +85,61 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp)
-                .background(Color(0xFF008080)),
-            horizontalAlignment = Alignment.End
+                .background(Color(0xFF008080)), //Teal Background
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            Box(
+            //Row for The Notification and Brutalism Switch
+            Row (
                 modifier = Modifier
-                    .padding(all = 12.dp)
-                    .size(50.dp)
-                    .applyBrutalism(
-                        backgroundColor = Color(0xFFFFA500), //soft tangerine
-                        borderWidth = 3.dp,
-                    ),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .padding(all = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
 
-                Icon(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .padding(all = 6.dp),
-                    painter = painterResource(id = R.drawable.ic_notification),
-                    contentDescription = "Notifications"
-                )
-            }
+                //Brutalism theme switch toggle
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
 
+                    // Use the BrutalismSwitch here
+//            var isSwitchChecked by remember { mutableStateOf(false) }
+                    CustomBrutalismSwitch(
+                        checked = isBrutalismThemeEnabled,
+                        onCheckedChange = { isBrutalismThemeEnabled = it }
+                    )
+//            Switch (
+//                checked = isBrutalismThemeEnabled,
+//                onCheckedChange = { isBrutalismThemeEnabled = it},
+//                colors = SwitchDefaults.colors(checkedThumbColor = Color.White, uncheckedThumbColor = Color.Gray)
+//            )
+
+                }
+
+                Spacer(modifier = Modifier.width(16.dp)) //the space between the notification icon and the switch
+
+
+                Box(
+                    modifier = Modifier
+                        .padding(all = 12.dp)
+                        .size(50.dp)
+                        .applyBrutalism(
+                            backgroundColor = Color(0xFFFFA500), //soft tangerine
+                            borderWidth = 3.dp,
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+
+                    Icon(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .padding(all = 6.dp),
+                        painter = painterResource(id = R.drawable.ic_notification),
+                        contentDescription = "Notifications"
+                    )
+                }
+
+            }
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -258,6 +302,110 @@ fun HomeScreen(
 
     }
 }
+
+@Composable
+fun BrutalismSwitch(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    // Custom colors for the Switch
+    val thumbColor = if (checked) Color(0xFFFFA500) else Color.White // Orange when checked, white when unchecked
+    val trackColor = if (checked) Color(0xFF008080).copy(alpha = 0.5f) else Color.Gray.copy(alpha = 0.5f) // Teal when checked, gray when unchecked
+
+    // Apply the brutalism effect to the Switch
+    Switch(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        modifier = Modifier
+            .applyBrutalism(
+                backgroundColor = Color.White, // Background color of the Switch container
+                shadowColor = Color.Black, // Shadow color
+                borderWidth = 3.dp, // Border width
+                cornersRadius = 16.dp // Rounded corners for the Switch container
+            ),
+        colors = SwitchDefaults.colors(
+            checkedThumbColor = thumbColor, // Custom thumb color when checked
+            uncheckedThumbColor = thumbColor, // Custom thumb color when unchecked
+            checkedTrackColor = trackColor, // Custom track color when checked
+            uncheckedTrackColor = trackColor, // Custom track color when unchecked
+            checkedTrackAlpha = 1f, // Opacity of the track when checked
+            uncheckedTrackAlpha = 1f // Opacity of the track when unchecked
+        )
+    )
+}
+
+@Composable
+fun CustomThumb(isChecked: Boolean) {
+    Box(
+        modifier = Modifier
+            .size(24.dp) // Custom thumb size
+            .background(
+                color = if (isChecked) Color(0xFFFFA500) else Color.White,
+                shape = RoundedCornerShape(12.dp) // Rounded thumb
+            )
+            .border(
+                width = 2.dp,
+                color = Color.Black,
+                shape = RoundedCornerShape(12.dp)
+            )
+    )
+}
+
+@Composable
+fun CustomBrutalismSwitch(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    val thumbSize = 24.dp
+    val trackWidth = 50.dp
+    val trackHeight = 30.dp
+    val padding = 4.dp
+
+    // Thumb position (animated)
+    val thumbOffset by animateDpAsState(
+        targetValue = if (checked) trackWidth - thumbSize - padding else padding,
+        animationSpec = tween(durationMillis = 200)
+    )
+
+    Box(
+        modifier = Modifier
+            .size(width = trackWidth, height = trackHeight)
+            .applyBrutalism(
+                backgroundColor = Color.White,
+                shadowColor = Color.Black,
+                borderWidth = 2.dp,
+                cornersRadius = 16.dp
+            )
+            .clickable { onCheckedChange(!checked) }
+    ) {
+        // Track
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    color = if (checked) Color(0xFF008080) else Color.Gray,
+                    shape = RoundedCornerShape(16.dp)
+                )
+        )
+
+        // Thumb
+        Box(
+            modifier = Modifier
+                .offset(x = thumbOffset, y = padding)
+                .size(thumbSize)
+                .background(
+                    color = if (checked) Color(0xFFFFA500) else Color.White,
+                    shape = CircleShape
+                )
+                .border(
+                    width = 2.dp,
+                    color = Color.Black,
+                    shape = CircleShape
+                )
+        )
+    }
+}
+
 
 @Composable
 fun SearchBox(
