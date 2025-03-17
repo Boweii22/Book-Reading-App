@@ -1,5 +1,6 @@
 package com.hadi.archives.presentation.screens.details
 
+import android.app.Application
 import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -33,7 +34,11 @@ import com.hadi.archives.data.local.getManagementBooks
 import com.hadi.archives.data.model.Book
 import com.hadi.archives.ui.theme.BrutalBlue
 import com.hadi.archives.ui.theme.BrutalYellow
+import com.hadi.archives.ui.theme.SoftTangerine
+import com.hadi.archives.ui.theme.Teal
+import com.hadi.archives.utils.ThemePreferences
 import com.hadi.archives.utils.applyBrutalism
+import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
@@ -41,8 +46,19 @@ fun BookDetailsScreen(
     navController: NavController,
     bookId: String
 ) {
+    var isCustomTheme by remember { mutableStateOf(false) }
 
-    rememberSystemUiController().setStatusBarColor(Color.White)
+   if (isCustomTheme) rememberSystemUiController().setStatusBarColor(Color.Black) else rememberSystemUiController().setStatusBarColor(Color.White)
+
+
+    val context = LocalContext.current.applicationContext as Application
+
+    // Load stored toggle state
+    LaunchedEffect(Unit) {
+        ThemePreferences.getThemeState(context).collectLatest {
+            isCustomTheme = it
+        }
+    }
 
     val scrollState = rememberScrollState()
 
@@ -61,7 +77,7 @@ fun BookDetailsScreen(
             modifier = Modifier
                 .verticalScroll(scrollState)
                 .fillMaxSize()
-                .background(Color.White),
+                .background(if (isCustomTheme) Color.Black else Color.White),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
@@ -77,7 +93,7 @@ fun BookDetailsScreen(
                     modifier = Modifier
                         .size(50.dp)
                         .applyBrutalism(
-                            backgroundColor = BrutalYellow,
+                            backgroundColor = SoftTangerine,
                             borderWidth = 3.dp,
                         )
                         .clickable {
@@ -127,7 +143,7 @@ fun BookDetailsScreen(
                 modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 12.dp),
                 text = book.title,
                 style = MaterialTheme.typography.h4,
-                color = Color.Black,
+                color = if (isCustomTheme) Color.White else Color.Black,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -210,7 +226,7 @@ fun PrimaryBookActions(modifier: Modifier = Modifier) {
                 .height(80.dp)
                 .padding(start = 12.dp, top = 12.dp, bottom = 12.dp)
                 .applyBrutalism(
-                    backgroundColor = BrutalYellow,
+                    backgroundColor = SoftTangerine,
                     borderWidth = 3.dp,
 
                     )
@@ -237,7 +253,7 @@ fun PrimaryBookActions(modifier: Modifier = Modifier) {
                 .height(80.dp)
                 .padding(all = 12.dp)
                 .applyBrutalism(
-                    backgroundColor = BrutalBlue,
+                    backgroundColor = Teal,
                     borderWidth = 4.dp
                 ),
             contentAlignment = Alignment.Center
@@ -254,15 +270,23 @@ fun PrimaryBookActions(modifier: Modifier = Modifier) {
 
 @Composable
 fun BookDetailsSection(modifier: Modifier = Modifier, book: Book) {
+    var isCustomTheme by remember { mutableStateOf(false) }
+    val context = LocalContext.current.applicationContext as Application
+    // Load stored toggle state
+    LaunchedEffect(Unit) {
+        ThemePreferences.getThemeState(context).collectLatest {
+            isCustomTheme = it
+        }
+    }
     Row(
         modifier = modifier
             .fillMaxWidth()
             .height(100.dp)
             .padding(horizontal = 12.dp, vertical = 12.dp)
-            .background(Color.White)
+            .background(if (isCustomTheme) Color.Black else Color.White)
             .border(
                 width = 4.dp,
-                color = Color.Black,
+                color = Color.Gray,
                 shape = RoundedCornerShape(6.dp)
             ),
         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -279,7 +303,7 @@ fun BookDetailsSection(modifier: Modifier = Modifier, book: Book) {
             modifier = Modifier
                 .fillMaxHeight()
                 .width(4.dp)
-                .background(Color.Black)
+                .background(if (isCustomTheme) Color.Black else Color.White)
         )
         BookFeature(
             modifier = Modifier.weight(1f),
@@ -292,7 +316,7 @@ fun BookDetailsSection(modifier: Modifier = Modifier, book: Book) {
             modifier = Modifier
                 .fillMaxHeight()
                 .width(4.dp)
-                .background(Color.Black)
+                .background(if (isCustomTheme) Color.Black else Color.White)
         )
         BookFeature(
             modifier = Modifier.weight(1f),
@@ -304,7 +328,7 @@ fun BookDetailsSection(modifier: Modifier = Modifier, book: Book) {
             modifier = Modifier
                 .fillMaxHeight()
                 .width(4.dp)
-                .background(Color.Black)
+                .background(if (isCustomTheme) Color.Black else Color.White)
         )
 
         Column(

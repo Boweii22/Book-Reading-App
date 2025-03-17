@@ -1,5 +1,6 @@
 package com.hadi.archives.presentation.screens.welcome
 
+import android.app.Application
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -15,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -33,7 +35,9 @@ import com.hadi.archives.data.model.Slider
 import com.hadi.archives.presentation.navigation.Screen
 import com.hadi.archives.ui.theme.BrutalCyan
 import com.hadi.archives.ui.theme.BrutalYellow
+import com.hadi.archives.utils.ThemePreferences
 import com.hadi.archives.utils.applyBrutalism
+import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -41,7 +45,19 @@ fun WelcomeScreen(
     navController: NavController
 ) {
 
-    rememberSystemUiController().setStatusBarColor(Color.White)
+    val context = LocalContext.current.applicationContext as Application
+    var isCustomTheme by remember { mutableStateOf(false) }
+
+    // Load stored toggle state
+    LaunchedEffect(Unit) {
+        ThemePreferences.getThemeState(context).collectLatest {
+            isCustomTheme = it
+        }
+    }
+
+    if (isCustomTheme) rememberSystemUiController().setStatusBarColor(Color.Black) else rememberSystemUiController().setStatusBarColor(Color.White)
+
+
 
     val pagerState = rememberPagerState()
     val pages = SliderData.slides
@@ -49,7 +65,7 @@ fun WelcomeScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(if (isCustomTheme) Color.Black else Color.White)
     ) {
 
         HorizontalPager(
@@ -98,6 +114,16 @@ fun FinishButton(
     maxPage: Int,
     onFinishClick: () -> Unit
 ) {
+    val context = LocalContext.current.applicationContext as Application
+    var isCustomTheme by remember { mutableStateOf(false) }
+
+    // Load stored toggle state
+    LaunchedEffect(Unit) {
+        ThemePreferences.getThemeState(context).collectLatest {
+            isCustomTheme = it
+        }
+    }
+
     AnimatedVisibility(
         visible = pagerState.currentPage == maxPage,
         enter = fadeIn(
@@ -131,7 +157,7 @@ fun FinishButton(
                 Text(
                     text = "EXPLORE",
                     style = MaterialTheme.typography.h6.copy(
-                        color = Color.Black
+                        color = if (isCustomTheme) Color.White else Color.Black
                     ),
                 )
             }
@@ -150,6 +176,16 @@ fun Slider(slide: Slider) {
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        val context = LocalContext.current.applicationContext as Application
+        var isCustomTheme by remember { mutableStateOf(false) }
+
+        // Load stored toggle state
+        LaunchedEffect(Unit) {
+            ThemePreferences.getThemeState(context).collectLatest {
+                isCustomTheme = it
+            }
+        }
+
 
         Box(
             modifier = Modifier
@@ -176,14 +212,14 @@ fun Slider(slide: Slider) {
             modifier = Modifier.padding(top = 16.dp, start = 12.dp, end = 12.dp),
             text = slide.quote,
             style = MaterialTheme.typography.subtitle1,
-            color = Color.Black,
+            color = if (isCustomTheme) Color.White else Color.Black,
             textAlign = TextAlign.Center
         )
 
         Text(
             modifier = Modifier.padding(top = 16.dp),
             text = "- ${slide.author}",
-            color = Color.Black,
+            color = if (isCustomTheme) Color.White else Color.Black,
             style = MaterialTheme.typography.subtitle1,
             textAlign = TextAlign.Center
         )
@@ -197,6 +233,17 @@ fun DotsIndicator(
     totalDots: Int,
     selectedIndex: Int
 ) {
+
+    val context = LocalContext.current.applicationContext as Application
+    var isCustomTheme by remember { mutableStateOf(false) }
+
+    // Load stored toggle state
+    LaunchedEffect(Unit) {
+        ThemePreferences.getThemeState(context).collectLatest {
+            isCustomTheme = it
+        }
+    }
+
 
     LazyRow(
         modifier = modifier,
@@ -214,7 +261,7 @@ fun DotsIndicator(
                         .background(Color(0xFF008080)) //teal
                         .border(
                             width = 2.dp,
-                            color = Color.Black
+                            color = if (isCustomTheme) Color.White else Color.Black
                         )
                 )
             } else {
@@ -225,7 +272,7 @@ fun DotsIndicator(
                         .background(Color(0xFFFFA500)) //soft tangerine
                         .border(
                             width = 2.dp,
-                            color = Color.Black
+                            color = if (isCustomTheme) Color.White else Color.Black
                         )
                 )
             }

@@ -1,9 +1,11 @@
 package com.hadi.archives.presentation.screens.home
 
+import android.app.Application
 import android.widget.Space
 import android.widget.Switch
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -20,8 +22,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -41,7 +46,10 @@ import com.hadi.archives.data.local.getScienceFictions
 import com.hadi.archives.presentation.components.CircularProgressBar
 import com.hadi.archives.presentation.navigation.Screen
 import com.hadi.archives.ui.theme.*
+import com.hadi.archives.utils.ThemePreferences
 import com.hadi.archives.utils.applyBrutalism
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
@@ -49,10 +57,41 @@ fun HomeScreen(
     navController: NavController = rememberNavController()
 ) {
 
+    val context = LocalContext.current.applicationContext as Application
+    val coroutineScope = rememberCoroutineScope()
+    var isCustomTheme by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
 
     val recentRead = getRecentRead()
+    val bgColor by animateColorAsState(
+        targetValue = if (isCustomTheme) Color.Black else Color.White
+    )
+//    val txtColor by animateColorAsState(
+//        targetValue = if (isCustomTheme) Color.White else Color.Black
+//    )
 
+    val transition = remember { Animatable(0f) }
+    val textTransion = remember { Animatable(0f) }
+
+    LaunchedEffect(isCustomTheme) {
+        textTransion.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(durationMillis = 1200, easing = LinearEasing)
+        )
+    }
+
+    LaunchedEffect(isCustomTheme) {
+        transition.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing)
+        )
+    }
+
+    val txtColor = if (isCustomTheme) {
+        Color.White.copy(alpha = transition.value)
+    } else {
+        Color.Black.copy(alpha = transition.value)
+    }
     val painter = rememberImagePainter(data = recentRead.imageUrl) {
         placeholder(R.drawable.ic_book_placeholder)
         error(R.drawable.ic_book_placeholder)
@@ -72,13 +111,29 @@ fun HomeScreen(
     val textColor = if (isBrutalismThemeEnabled) Color.White else Color.Black
     val buttonBackgroundColor = if (isBrutalismThemeEnabled) Color(0xFFFFA500) else Color(0xFF008080)
 
+    // Load stored toggle state
+    LaunchedEffect(Unit) {
+        ThemePreferences.getThemeState(context).collectLatest {
+            isCustomTheme = it
+        }
+    }
+
 
 
     Column(
         modifier = Modifier
             .verticalScroll(scrollState)
-            .background(Color.White)
-            .fillMaxSize(),
+            .fillMaxSize()
+            .background(
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        if (isCustomTheme) Color.DarkGray else Color.LightGray,
+                        if (isCustomTheme) Color.Black else Color.White
+                    ),
+                    start = Offset.Zero,
+                    end = Offset(transition.value * 1000f, transition.value * 1000f)    //Animate diagonally
+                )
+            ),
     ) {
 
         Column(
@@ -105,8 +160,14 @@ fun HomeScreen(
                     // Use the BrutalismSwitch here
 //            var isSwitchChecked by remember { mutableStateOf(false) }
                     CustomBrutalismSwitch(
-                        checked = isBrutalismThemeEnabled,
-                        onCheckedChange = { isBrutalismThemeEnabled = it }
+                        checked = isCustomTheme,
+//                        onCheckedChange = { isBrutalismThemeEnabled = it }
+                        onCheckedChange = {newValue ->
+                            isCustomTheme = newValue
+                            coroutineScope.launch {
+                                ThemePreferences.saveThemeState(context, newValue)
+                            }
+                        }
                     )
 //            Switch (
 //                checked = isBrutalismThemeEnabled,
@@ -155,7 +216,7 @@ fun HomeScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .offset(y = (-30).dp)
+                .offset(y = (-23).dp)
         ) {
             SearchBox(searchQuery = searchQuery, onSearchQueryChanged = { searchQuery = it })
 
@@ -165,7 +226,7 @@ fun HomeScreen(
                     modifier = Modifier.padding(start = 12.dp, top = 8.dp, end = 12.dp),
                     text = "Continue Reading",
                     style = MaterialTheme.typography.h6,
-                    color = Color.Black,
+                    color = txtColor
                 )
 
                 Box(
@@ -262,7 +323,7 @@ fun HomeScreen(
                 modifier = Modifier.padding(start = 12.dp, top = 8.dp, end = 12.dp),
                 text = "Recommended For You",
                 style = MaterialTheme.typography.h6,
-                color = Color.Black,
+                color = if (isCustomTheme) Color.White else Color.Black
             )
 
             LazyRow(
@@ -282,7 +343,7 @@ fun HomeScreen(
                 modifier = Modifier.padding(start = 12.dp, top = 8.dp, end = 12.dp),
                 text = "Best Sellers",
                 style = MaterialTheme.typography.h6,
-                color = Color.Black,
+                color = if (isCustomTheme) Color.White else Color.Black
             )
 
             LazyRow(

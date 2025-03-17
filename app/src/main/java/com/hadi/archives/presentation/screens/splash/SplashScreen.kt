@@ -17,10 +17,19 @@ import com.hadi.archives.ui.theme.BrutalYellow
 import com.hadi.archives.ui.theme.MonumentTypography
 import com.hadi.archives.utils.applyBrutalism
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.graphicsLayer
+
 @Composable
 fun SplashScreen(
     navController: NavController
 ) {
+    val textAlpha by animateFloatAsState(
+        targetValue = 1f,
+        animationSpec = tween(durationMillis = 1500)
+    )
 
     rememberSystemUiController().setStatusBarColor(Color.White)
 
@@ -35,12 +44,12 @@ fun SplashScreen(
                 .weight(8f),
             contentAlignment = Alignment.Center
         ) {
-
             Text(
                 text = "THE ART OF\nBRUTALI-\nSM",
                 style = MonumentTypography.h3.copy(
                     fontSize = 75.sp
-                )
+                ),
+                modifier = Modifier.graphicsLayer(alpha = textAlpha)
             )
         }
 
@@ -50,7 +59,6 @@ fun SplashScreen(
                 .weight(2f),
             contentAlignment = Alignment.Center
         ) {
-
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -72,7 +80,6 @@ fun SplashScreen(
                     ),
                 )
             }
-
         }
 
     }
