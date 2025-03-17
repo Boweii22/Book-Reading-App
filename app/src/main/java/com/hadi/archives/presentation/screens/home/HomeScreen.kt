@@ -325,18 +325,20 @@ fun HomeScreen(
                 style = MaterialTheme.typography.h6,
                 color = if (isCustomTheme) Color.White else Color.Black
             )
+            // Shuffle the list once when the composable is first composed
+            val shuffledManagementBooks = remember { filteredManagementBooks.shuffled() }
 
-            LazyRow(
-                contentPadding = PaddingValues(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                itemsIndexed(items = filteredManagementBooks) { index, book ->
-                    BookCard(book = book) {
-                        navController.navigate(
-                            route = Screen.Details.route.plus("/${book.id}")
-                        )
+                LazyRow(
+                    contentPadding = PaddingValues(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    itemsIndexed(items = shuffledManagementBooks) { index, book ->
+                        BookCard(book = book) {
+                            navController.navigate(
+                                route = Screen.Details.route.plus("/${book.id}")
+                            )
+                        }
                     }
-                }
             }
 
             Text(
@@ -345,12 +347,14 @@ fun HomeScreen(
                 style = MaterialTheme.typography.h6,
                 color = if (isCustomTheme) Color.White else Color.Black
             )
+            // Shuffle the list once when the composable is first composed
+            val shuffledBooks = remember { filteredScienceFictions.shuffled() }
 
             LazyRow(
                 contentPadding = PaddingValues(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                itemsIndexed(items = filteredScienceFictions) { index, book ->
+                itemsIndexed(items = shuffledBooks) { index, book ->
                     BookCard(book = book) {
                         navController.navigate(
                             route = Screen.Details.route.plus("/${book.id}")
